@@ -78,5 +78,5 @@ def scan_dir(root_path):
         print(f"[INFO]:Successful! {count} files scanned")
 
 if __name__ == '__main__':
-    filepath = r"D:\Py_Project\LocalMind\Test"
+    filepath = r"D:\Py_Project\LocalMind\tests\Test"
     scan_dir(filepath)

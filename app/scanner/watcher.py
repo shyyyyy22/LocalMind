@@ -98,7 +98,7 @@ class FileChangeHandler(FileSystemEventHandler):
 if __name__ == '__main__':
     observer = Observer()
     handler = FileChangeHandler()
-    observer.schedule(handler, r"D:\Py_Project\LocalMind\Test", recursive=True)
+    observer.schedule(handler, r"D:\Py_Project\LocalMind\tests\Test", recursive=True)
     observer.start()
     try:
         observer.join()
