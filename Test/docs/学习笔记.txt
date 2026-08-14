@@ -1,0 +1,29 @@
+学习笔记（杂记）
+================
+
+2024-03-15
+----------
+今天学习了 SQLite 的 FTS5 全文搜索，用 MATCH 语法做关键词匹配。
+还复习了 SQL 的 WHERE / LIKE / ORDER BY / LIMIT。
+
+2024-05-02
+----------
+开始看 FastAPI 的文档，学会了如何写路由和返回 JSON。
+用 uvicorn 启动服务，浏览器里可以直接访问 /docs 看 Swagger 界面。
+
+2024-07-20
+----------
+了解了一下向量数据库的基本概念，比如 FAISS 和 Qdrant。
+embedding 之后用余弦相似度（cosine similarity）做检索。
+
+2024-09-08
+----------
+复习了 watchdog 文件监听库，可以监听文件创建、修改、删除、移动事件。
+
+2024-11-11
+----------
+研究了 RAG（检索增强生成）的流程：检索 -> 拼接上下文 -> 生成回答。
+关键是让大模型基于检索到的文档回答，减少幻觉。
+
+关键词：SQLite, FTS5, SQL, FastAPI, uvicorn, FAISS, Qdrant,
+embedding, 余弦相似度, watchdog, RAG, 检索增强生成

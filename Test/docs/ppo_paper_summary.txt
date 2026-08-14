@@ -1,0 +1,36 @@
+PPO 论文摘要
+============
+
+论文标题：Proximal Policy Optimization Algorithms
+作者：John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, Oleg Klimov
+机构：OpenAI
+发表时间：2017 年 7 月
+
+摘要
+----
+
+我们提出了一种新的强化学习策略优化方法——近端策略优化（PPO），
+它在与环境交互的数据效率和实现的简单性、调参的便利性之间取得了平衡。
+PPO 使用一阶优化，同时用裁剪的替代目标函数限制策略更新幅度，
+在多种任务（包括 Atari 游戏、MuJoCo 机器人控制）上都表现出色，
+训练稳定性优于之前的方法（如 TRPO、A2C）。
+
+核心贡献
+--------
+
+1. 提出裁剪目标函数（Clipped Surrogate Objective），实现简单且稳定
+2. 相比 TRPO 无需计算二阶导数，实现更容易
+3. 在连续控制和高维状态空间中表现良好
+4. 支持并行环境采样，训练效率高
+
+算法伪代码（简略）
+------------------
+
+for iteration = 1, 2, ...:
+    在环境中运行策略 pi_old，收集轨迹
+    估计优势函数 A_t（使用 GAE）
+    对每个 minibatch，用裁剪目标更新策略参数 theta 若干 epoch
+    更新价值函数参数
+
+相关关键词：PPO, RL, reinforcement learning, 强化学习, policy gradient,
+策略梯度, clipping, GAE, OpenAI

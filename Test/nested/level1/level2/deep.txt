@@ -1,0 +1,4 @@
+这是一个位于深层嵌套目录中的文件：
+Test/nested/level1/level2/deep.txt
+
+用于测试递归扫描和深层路径的索引是否正确。

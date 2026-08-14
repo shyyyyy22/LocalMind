@@ -1,0 +1,6 @@
+这是一份完全相同的重复文件测试内容。
+LocalMind 应该能够通过 SHA-256 哈希检测到与 相同内容_B.txt 完全重复。
+
+The quick brown fox jumps over the lazy dog.
+The quick brown fox jumps over the lazy dog.
+The quick brown fox jumps over the lazy dog.
