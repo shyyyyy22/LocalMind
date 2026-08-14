@@ -1,0 +1,6 @@
+localmind.db
+.idea
+Test/
+__pycache__/
+*.pyc
+venv/
