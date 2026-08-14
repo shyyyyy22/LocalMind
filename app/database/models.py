@@ -1,6 +1,6 @@
-import os
 from sqlalchemy import create_engine,Column,String,Integer,DateTime,BigInteger
 from sqlalchemy.orm import declarative_base
+from app.core.config import DB_PATH
 
 Base=declarative_base()
 class File(Base):
@@ -14,5 +14,5 @@ class File(Base):
     mtime = Column(DateTime)
     hash = Column(String(64))
 
-engine = create_engine(os.getenv("LOCALMIND_DB",'sqlite:///localmind.db'),echo=False)
+engine = create_engine(DB_PATH,echo=False)
 Base.metadata.create_all(engine)

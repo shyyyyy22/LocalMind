@@ -1,4 +1,3 @@
-from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from pathlib import Path
 from app.database.models import File, engine
@@ -93,15 +92,3 @@ class FileChangeHandler(FileSystemEventHandler):
                 print(f"[ERROR]:No permission to access the path :{old_path}")
             except Exception as e:
                 print(f"[ERROR]:Progress file {old_path} failed:{e}")
-
-
-if __name__ == '__main__':
-    observer = Observer()
-    handler = FileChangeHandler()
-    observer.schedule(handler, r"D:\Py_Project\LocalMind\tests\Test", recursive=True)
-    observer.start()
-    try:
-        observer.join()
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()

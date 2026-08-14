@@ -76,7 +76,3 @@ def scan_dir(root_path):
                     continue
         session.commit()
         print(f"[INFO]:Successful! {count} files scanned")
-
-if __name__ == '__main__':
-    filepath = r"D:\Py_Project\LocalMind\tests\Test"
-    scan_dir(filepath)
