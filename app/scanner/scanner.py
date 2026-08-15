@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from app.database.models import File,FileContent,engine
 from datetime import datetime
 from sqlalchemy import select
+from app.parser import parse_file, UnsupportedFormatError
 
 Session=sessionmaker(bind=engine)
 
@@ -48,12 +49,21 @@ def scan_dir(root_path):
                         continue
                     stmt = select(File).where(File.path == str(file_path.absolute()))
                     file_record = session.execute(stmt).scalar_one_or_none()
+                    try:
+                        file_content = FileContent(content=parse_file(file_path), status="success")
+                    except UnsupportedFormatError as e:
+                        file_content = FileContent(content='', status="unsupported")
+                        print(e)
+                    except Exception as e:
+                        file_content = FileContent(content='', status="error")
+                        print(e)
                     if file_record:
                         file_record.name = file_path.name
                         file_record.extension = file_path.suffix
                         file_record.size = stat_obj.st_size
                         file_record.mtime = datetime.fromtimestamp(stat_obj.st_mtime)
                         file_record.hash = file_hash
+                        file_record.content = file_content
                     else:
                         session.add(File(path=str(file_path.absolute()),
                                          name=str(file_path.name),
@@ -61,7 +71,8 @@ def scan_dir(root_path):
                                          mtime=datetime.fromtimestamp(stat_obj.st_mtime),
                                          ctime=datetime.fromtimestamp(stat_obj.st_ctime),
                                          size=stat_obj.st_size,
-                                         hash=file_hash))
+                                         hash=file_hash,
+                                         content=file_content))
                     count += 1
                     if(count % 50 == 0):
                         session.commit()
