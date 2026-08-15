@@ -1,7 +1,7 @@
 import hashlib
 from pathlib import Path
 from sqlalchemy.orm import sessionmaker
-from app.database.models import File,engine
+from app.database.models import File,FileContent,engine
 from datetime import datetime
 from sqlalchemy import select
 
