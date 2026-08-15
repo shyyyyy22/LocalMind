@@ -1,14 +1,7 @@
 import os
-from pathlib import Path
-
-import pytest
-import hashlib
-
-from sqlalchemy.sql.functions import user
-
 from conftest import TEST_DIR
 from app.database.models import engine,File
-from app.scanner.scanner import scan_dir,calculate_hash
+from app.scanner.scanner import scan_dir
 from sqlalchemy import select,func
 from sqlalchemy.orm import sessionmaker
 
