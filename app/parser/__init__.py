@@ -2,12 +2,17 @@ from pathlib import Path
 from .base import BaseParser
 from .md import MarkdownParser
 from .code import CodeParser
+from .office import WordParser, PresentationParser, ExcelParser
+
 
 class UnsupportedFormatError(Exception):
     pass
 
 markdown_parser = MarkdownParser()
 code_parser = CodeParser()
+word_parser = WordParser()
+presentation_parser = PresentationParser()
+excel_parser = ExcelParser()
 
 REGISTRY = {
     "txt" : markdown_parser,
@@ -44,7 +49,11 @@ REGISTRY = {
     "yml": code_parser,
     "toml": code_parser,
     "ini": code_parser,
-    "conf": code_parser
+    "conf": code_parser,
+
+    "docx": word_parser,
+    "pptx": presentation_parser,
+    "xlsx": excel_parser
 }
 
 def parse_file(path):

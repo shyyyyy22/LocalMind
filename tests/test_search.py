@@ -1,8 +1,10 @@
 import pytest
-
 from app.scanner.scanner import scan_dir
 from app.search import search
 from conftest import seeded_db
+from docx import Document
+from pptx import Presentation
+from openpyxl import Workbook
 
 def test_name_fuzzy_search(seeded_db):
     results1 = search.search_by_name("transformer")
@@ -76,3 +78,41 @@ def test_content_combined_ext(tmp_path):
     result = search.search(content="text",ext="py")
     assert result[0].extension == ".py"
     assert len(result) == 1
+def test_docx_search(tmp_path):
+    text="word"
+    doc = Document()
+    doc.add_paragraph(text)
+    doc.add_paragraph("p2")
+    doc.save(str(tmp_path / "test.docx"))
+    scan_dir(tmp_path)
+    result = search.search_by_content("p2")
+    assert len(result) == 1
+    assert result[0].name == "test.docx"
+def test_pptx_search(tmp_path):
+    text="ppt"
+    ppt = Presentation()
+    slide_layout = ppt.slide_layouts[0]
+    slide = ppt.slides.add_slide(slide_layout)
+    content = slide.placeholders[1]
+    content.text = text
+    slide = ppt.slides.add_slide(slide_layout)
+    content = slide.placeholders[1]
+    content.text = "slide2"
+    ppt.save(str(tmp_path / "test.pptx"))
+    scan_dir(tmp_path)
+    result = search.search_by_content("slide2")
+    assert len(result) == 1
+    assert result[0].name == "test.pptx"
+def test_xlsx_search(tmp_path):
+    text="excel"
+    wb = Workbook()
+    ws = wb.active
+    ws['A1'] = text
+    wb.save(str(tmp_path / "test.xlsx"))
+    scan_dir(tmp_path)
+    result = search.search_by_content(text)
+    assert len(result) == 1
+    assert result[0].name == "test.xlsx"
+def test_content_no_match(tmp_path):
+    scan_dir(tmp_path)  # 有 1 个文件
+    assert search.search_by_content('不存在的词xyz') == []

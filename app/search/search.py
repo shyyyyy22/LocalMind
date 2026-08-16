@@ -74,6 +74,9 @@ def search(name=None, ext=None, path=None, size_min=None, size_max=None,
         id_to_file = {f.id: f for f in results}
         ordered_result =[id_to_file[id] for id in fts_rowids if id in id_to_file]
         return ordered_result
+    else:
+        if content is not None:
+            return []
 
     return results
 
@@ -89,6 +92,3 @@ def search_by_mtime(mtime_start=None, mtime_end=None, limit_num=50):
     return search(mtime_start=mtime_start, mtime_end=mtime_end, limit_num=limit_num)
 def search_by_content(content, limit_num=50):
     return search(content=content, limit_num=limit_num)
-
-if __name__ == "__main__":
-    print(search_by_path("Test\code"))
