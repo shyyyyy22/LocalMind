@@ -1,9 +1,9 @@
 import hashlib
 from pathlib import Path
 from sqlalchemy.orm import sessionmaker
-from app.database.models import File,FileContent,engine
+from app.database.models import File,FileContent,engine,init_fts
 from datetime import datetime
-from sqlalchemy import select
+from sqlalchemy import select,text
 from app.parser import parse_file, UnsupportedFormatError
 
 Session=sessionmaker(bind=engine)
@@ -28,6 +28,7 @@ def calculate_hash(file_path,buffer_size=65536):
 
 def scan_dir(root_path):
     print(f"[INFO]:Scanning {root_path}")
+    init_fts(engine)
     try:
         root = Path(root_path)
         if not root.exists():
@@ -73,6 +74,10 @@ def scan_dir(root_path):
                                          size=stat_obj.st_size,
                                          hash=file_hash,
                                          content=file_content))
+                    session.flush()
+                    if file_content.status == "success":
+                        session.execute(text("INSERT OR REPLACE INTO content_fts (content,rowid) VALUES(:content, :rowid)"),
+                                        {"content": file_content.content, "rowid": file_content.id})
                     count += 1
                     if(count % 50 == 0):
                         session.commit()

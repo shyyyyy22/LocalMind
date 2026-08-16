@@ -22,6 +22,7 @@ search_parser.add_argument('--max_size',type=int,help='Max size of file',default
 search_parser.add_argument('--mtime_start',type=str,help='Start modified time of file',default=None)
 search_parser.add_argument('--mtime_end',type=str,help='End modified time of file',default=None)
 search_parser.add_argument('--limit',type=int,help='limit number of results',default=50)
+search_parser.add_argument('--content',type=str,help='content of file',default=None)
 #scanner
 scan_parser = subparsers.add_parser('scan',help='Scan files')
 scan_parser.add_argument('--path',type=str,help='Path of file',default=None)
@@ -34,7 +35,7 @@ if args.command == 'search':
     try:
         ext = '' if args.noext else args.ext
         results = search(name=args.name,ext=ext,path=args.path,size_min=args.min_size,size_max=args.max_size,
-                         mtime_start=args.mtime_start,mtime_end=args.mtime_end,limit_num=args.limit)
+                         mtime_start=args.mtime_start,mtime_end=args.mtime_end,content=args.content,limit_num=args.limit)
     except ValueError as e :
         parser.error(str(e))
     if results:

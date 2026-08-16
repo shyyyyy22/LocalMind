@@ -1,11 +1,11 @@
 from app.database.models import File, engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-from sqlalchemy import select
+from sqlalchemy import select,text
 
 Session = sessionmaker(bind=engine)
 def search(name=None, ext=None, path=None, size_min=None, size_max=None,
-           mtime_start=None, mtime_end=None, limit_num=50):
+           mtime_start=None, mtime_end=None, content=None, limit_num=50):
     """按元数据条件组合搜索文件，所有条件为 None 时表示不过滤。
 
     Args:
@@ -16,6 +16,7 @@ def search(name=None, ext=None, path=None, size_min=None, size_max=None,
         size_max: 最大文件大小（字节），None 表示无上界。
         mtime_start: 修改时间起点，格式 "YYYY-MM-DD-HH"，条件为 >=（含该小时起点）。
         mtime_end: 修改时间终点，格式 "YYYY-MM-DD-HH"，条件为 <（不含该小时起点）。
+        content: 文件包含内容
         limit_num: 最多返回条数，默认 50。
 
     Returns:
@@ -52,9 +53,28 @@ def search(name=None, ext=None, path=None, size_min=None, size_max=None,
         except ValueError as e:
             raise ValueError(f"[ERROR]:mtime_end format error: should be YYYY-MM-DD-HH") from e
         conditions.append(File.mtime < end_time)
+    fts_rowids=[]
+    if content is not None:
+        query = content
+        stmt=text("SELECT rowid FROM content_fts WHERE content MATCH :query ORDER BY bm25(content_fts) ASC LIMIT :limit",)
+        with engine.connect() as conn:
+            try:
+                results = conn.execute(stmt,{"query":query,"limit":limit_num})
+                fts_rowids = [row.rowid for row in results]
+                if fts_rowids:
+                    conditions.append(File.id.in_(fts_rowids))
+            except Exception as e:
+                raise ValueError(f"[ERROR]:content search failed:{e}") from e
+
     stmt = select(File).where(*conditions).order_by(File.name).limit(limit_num)
     with Session() as session:
         results = session.execute(stmt).scalars().all()
+
+    if fts_rowids:
+        id_to_file = {f.id: f for f in results}
+        ordered_result =[id_to_file[id] for id in fts_rowids if id in id_to_file]
+        return ordered_result
+
     return results
 
 def search_by_name(name,limit_num=50):

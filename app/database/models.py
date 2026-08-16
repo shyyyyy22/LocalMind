@@ -1,6 +1,6 @@
 from datetime import datetime
-from sqlalchemy import create_engine,Column,String,Integer,DateTime,BigInteger,Text,Enum,ForeignKey
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy import create_engine,Column,String,Integer,DateTime,BigInteger,Text,Enum,ForeignKey,text
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from app.core.config import DB_PATH
 
 Base=declarative_base()
@@ -26,3 +26,8 @@ class FileContent(Base):
 
 engine = create_engine(DB_PATH,echo=False)
 Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+
+def init_fts(engine):
+    with engine.begin() as conn:
+        conn.execute(text("CREATE VIRTUAL TABLE IF NOT EXISTS content_fts USING fts5(content,tokenize='unicode61')"))
