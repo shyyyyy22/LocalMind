@@ -87,6 +87,8 @@ def search_by_size(size_min=None, size_max=None,limit_num=50):
     return search(size_min=size_min, size_max=size_max, limit_num=limit_num)
 def search_by_mtime(mtime_start=None, mtime_end=None, limit_num=50):
     return search(mtime_start=mtime_start, mtime_end=mtime_end, limit_num=limit_num)
+def search_by_content(content, limit_num=50):
+    return search(content=content, limit_num=limit_num)
 
 if __name__ == "__main__":
     print(search_by_path("Test\code"))

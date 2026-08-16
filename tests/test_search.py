@@ -1,4 +1,6 @@
 import pytest
+
+from app.scanner.scanner import scan_dir
 from app.search import search
 from conftest import seeded_db
 
@@ -33,3 +35,44 @@ def test_search_by_invalid_mtime(seeded_db):
 def test_combined_search_with_limit(seeded_db):
     results1=search.search(ext='py',size_min=100,limit_num=2)
     assert len(results1) == 2
+def test_single_keyword(tmp_path):
+    text = "text"
+    (tmp_path / "single_keyword_test.txt").write_text(text)
+    scan_dir(tmp_path)
+    result = search.search_by_content(text)
+    assert result[0].name == "single_keyword_test.txt"
+    assert len(result) == 1
+def test_order(tmp_path):
+    text1 = "text"
+    text2 = "text " * 10
+    (tmp_path / "order_test1.txt").write_text(text1)
+    (tmp_path / "order_test2.txt").write_text(text2)
+    scan_dir(tmp_path)
+    result = search.search_by_content("text")
+    assert result[0].name == "order_test2.txt"
+    assert result[1].name == "order_test1.txt"
+def test_and_keywords(tmp_path):
+    text1 = "alpha beta"
+    text2 = "alpha"
+    (tmp_path / "and_keywords_test1.txt").write_text(text1)
+    (tmp_path / "and_keywords_test2.txt").write_text(text2)
+    scan_dir(tmp_path)
+    result = search.search_by_content("alpha beta")
+    assert result[0].name == "and_keywords_test1.txt"
+    assert len(result) == 1
+def test_keywords_with_limit(tmp_path):
+    text = "text"
+    (tmp_path / "keywords_with_limit_test1.txt").write_text(text)
+    (tmp_path / "keywords_with_limit_test2.txt").write_text(text)
+    (tmp_path / "keywords_with_limit_test3.txt").write_text(text)
+    scan_dir(tmp_path)
+    result = search.search_by_content("text",limit_num=2)
+    assert len(result) == 2
+def test_content_combined_ext(tmp_path):
+    text="text"
+    (tmp_path / "content_combined_ext.txt").write_text(text)
+    (tmp_path / "content_combined_ext.py").write_text(text)
+    scan_dir(tmp_path)
+    result = search.search(content="text",ext="py")
+    assert result[0].extension == ".py"
+    assert len(result) == 1
