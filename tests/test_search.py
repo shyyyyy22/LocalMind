@@ -5,7 +5,6 @@ from conftest import seeded_db
 from docx import Document
 from pptx import Presentation
 from openpyxl import Workbook
-from conftest import TEST_DIR
 
 
 def test_name_fuzzy_search(seeded_db):

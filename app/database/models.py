@@ -30,4 +30,29 @@ Session = sessionmaker(bind=engine)
 
 def init_fts(engine):
     with engine.begin() as conn:
-        conn.execute(text("CREATE VIRTUAL TABLE IF NOT EXISTS content_fts USING fts5(content,tokenize='unicode61')"))
+        conn.execute(text("""CREATE VIRTUAL TABLE IF NOT EXISTS content_fts USING fts5
+                          (content,
+                          content = file_contents,
+                          content_rowid = id,
+                          tokenize='unicode61'
+                          )
+                      """))
+        conn.execute(text("""
+            CREATE TRIGGER IF NOT EXISTS content_fts_after_insert AFTER INSERT ON file_contents
+            BEGIN
+                INSERT INTO content_fts(rowid, content) VALUES (new.id, new.content);
+            END;
+        """))
+        conn.execute(text("""
+            CREATE TRIGGER IF NOT EXISTS content_fts_after_update AFTER UPDATE OF content ON file_contents
+            BEGIN
+                INSERT INTO content_fts(content_fts, rowid, content) VALUES ('delete', old.id, old.content);
+                INSERT INTO content_fts(rowid, content) VALUES (new.id, new.content);
+            END;
+        """))
+        conn.execute(text("""
+            CREATE TRIGGER IF NOT EXISTS content_fts_after_delete AFTER DELETE ON file_contents
+            BEGIN
+                DELETE FROM content_fts WHERE rowid=old.id;
+            END;
+        """))

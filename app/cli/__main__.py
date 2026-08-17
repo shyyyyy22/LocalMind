@@ -1,5 +1,6 @@
 import argparse
 from watchdog.observers import Observer
+from app.database.models import init_fts,engine
 from app.search.search import search
 from app.scanner.scanner import scan_dir
 from app.scanner.watcher import FileChangeHandler
@@ -8,6 +9,8 @@ def truncate_middle(text,width):
     if len(text)>width:
         text=text[:width * 4 // 10] + "..." + text[len(text)-(width - 3 - width * 4 // 10):len(text)]
     return text
+
+init_fts(engine)
 
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(title='subcommands',dest='command',help='sub-command help')
@@ -62,6 +65,7 @@ if args.command == 'scan':
     else:
         print("[INFO]:No path")
 if args.command == 'watch':
+    init_fts(engine)
     if args.path is not None:
         print(f"[INFO]:Start watching {args.path}")
         observer = Observer()
