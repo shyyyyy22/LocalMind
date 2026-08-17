@@ -7,6 +7,10 @@ class WordParser(BaseParser):
     def parse(self,path):
         doc = Document(path)
         content = "\n".join(para.text for para in doc.paragraphs)
+        for table in doc.tables:
+            for row in table.rows:
+                content += " ".join(str(cell.text) for cell in row if cell.text)
+                content += "\n"
         return content
 class PresentationParser(BaseParser):
     def parse(self,path):

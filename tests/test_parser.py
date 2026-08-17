@@ -1,7 +1,7 @@
 import pytest
 from app.scanner.scanner import scan_dir
 from app.search import search
-from app.database.models import engine, FileContent
+from app.database.models import engine, FileContent,File
 from app.parser import parse_file, UnsupportedFormatError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import func
@@ -52,3 +52,15 @@ def test_status(tmp_path):
         status_counts = (session.query(FileContent.status,func.count()).group_by(FileContent.status).all())
         status_dict = {status: cnt for status,cnt in status_counts}
         assert status_dict == {'success': 1, 'unsupported': 1, 'error': 1}
+def test_pdf(seeded_db):
+    result1=search.search_by_content("just")
+    assert result1[0].name == "pdf_test.pdf"
+    with Session() as session:
+        result2 = session.query(FileContent).filter(
+            FileContent.file.has(File.path.like("%blank_page%"))
+        ).first()
+        result3 = session.query(FileContent).filter(
+            FileContent.file.has(File.path.like("%pdf_password%"))
+        ).first()
+        assert result2.status == "unsupported"
+        assert result3.status == "error"

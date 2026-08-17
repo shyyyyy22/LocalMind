@@ -1,10 +1,11 @@
 import hashlib
 from pathlib import Path
+from pypdf.errors import WrongPasswordError
 from sqlalchemy.orm import sessionmaker
 from app.database.models import File,FileContent,engine,init_fts
 from datetime import datetime
 from sqlalchemy import select,text
-from app.parser import parse_file, UnsupportedFormatError
+from app.parser import parse_file, UnsupportedFormatError, NoTextError
 
 Session=sessionmaker(bind=engine)
 
@@ -55,6 +56,12 @@ def scan_dir(root_path):
                     except UnsupportedFormatError as e:
                         file_content = FileContent(content='', status="unsupported")
                         print(e)
+                    except NoTextError as e:
+                        file_content = FileContent(content='', status="unsupported")
+                        print(e)
+                    except WrongPasswordError as e:
+                        file_content = FileContent(content='', status="error")
+                        print(f"[ERROR]:encrypted pdf file :{file_path} - {e}")
                     except Exception as e:
                         file_content = FileContent(content='', status="error")
                         print(e)

@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 Session = sessionmaker(bind=engine)
 
-EXPECTED_TOTAL_COUNT = 27
+EXPECTED_TOTAL_COUNT = 30
 
 def test_scan_dir():
     scan_dir(TEST_DIR)

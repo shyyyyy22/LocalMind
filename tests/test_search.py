@@ -5,6 +5,8 @@ from conftest import seeded_db
 from docx import Document
 from pptx import Presentation
 from openpyxl import Workbook
+from conftest import TEST_DIR
+
 
 def test_name_fuzzy_search(seeded_db):
     results1 = search.search_by_name("transformer")
@@ -27,10 +29,10 @@ def test_search_by_path(seeded_db):
 def test_search_by_size(seeded_db):
     results1 = search.search_by_size(size_max=0)
     results2 = search.search_by_size(size_min=1000)
-    assert len(results1) == 1 and len(results2) == 7
+    assert len(results1) == 1 and len(results2) == 9
 def test_search_by_vaild_mtime(seeded_db):
     results1 = search.search_by_mtime(mtime_start="2026-08-01-00")
-    assert len(results1) == 27
+    assert len(results1) == 30
 def test_search_by_invalid_mtime(seeded_db):
     with pytest.raises(ValueError):
         search.search_by_mtime(mtime_start="2026/8/1/00")
