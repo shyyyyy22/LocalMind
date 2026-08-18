@@ -4,6 +4,10 @@ from datetime import datetime
 from sqlalchemy import select,text
 
 Session = sessionmaker(bind=engine)
+
+def is_chinese(string):
+    return any(0x4E00 <= ord(ch) <= 0x9FFF for ch in string)
+
 def search(name=None, ext=None, path=None, size_min=None, size_max=None,
            mtime_start=None, mtime_end=None, content=None, limit_num=50):
     """按元数据条件组合搜索文件，所有条件为 None 时表示不过滤。
@@ -56,11 +60,24 @@ def search(name=None, ext=None, path=None, size_min=None, size_max=None,
     fts_rowids=[]
     if content is not None:
         query = content
-        stmt=text("SELECT rowid FROM content_fts WHERE content MATCH :query ORDER BY bm25(content_fts) ASC LIMIT :limit",)
+        is_ch = is_chinese(query)
+        flag = False
+        if is_ch:
+            if len(query) < 3:
+                query = f"%{query}%"
+                stmt = text("SELECT id FROM file_contents WHERE content LIKE :query LIMIT :limit")
+                flag = True
+            else:
+                stmt = text("SELECT rowid FROM content_fts_cn WHERE content MATCH :query ORDER BY bm25(content_fts_cn) ASC LIMIT :limit")
+        else:
+            stmt = text("SELECT rowid FROM content_fts WHERE content MATCH :query ORDER BY bm25(content_fts) ASC LIMIT :limit")
         with engine.connect() as conn:
             try:
                 results = conn.execute(stmt,{"query":query,"limit":limit_num})
-                fts_rowids = [row.rowid for row in results]
+                if flag:
+                    fts_rowids = [row.id for row in results]
+                else:
+                    fts_rowids = [row.rowid for row in results]
                 if fts_rowids:
                     conditions.append(File.id.in_(fts_rowids))
             except Exception as e:

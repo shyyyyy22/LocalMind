@@ -1,6 +1,7 @@
 import pytest
 from app.scanner.scanner import scan_dir
 from app.search import search
+from app.search.search import search_by_content
 from conftest import seeded_db
 from docx import Document
 from pptx import Presentation
@@ -31,7 +32,7 @@ def test_search_by_size(seeded_db):
     assert len(results1) == 1 and len(results2) == 9
 def test_search_by_vaild_mtime(seeded_db):
     results1 = search.search_by_mtime(mtime_start="2026-08-01-00")
-    assert len(results1) == 30
+    assert len(results1) == 31
 def test_search_by_invalid_mtime(seeded_db):
     with pytest.raises(ValueError):
         search.search_by_mtime(mtime_start="2026/8/1/00")
@@ -117,3 +118,22 @@ def test_xlsx_search(tmp_path):
 def test_content_no_match(tmp_path):
     scan_dir(tmp_path)  # 有 1 个文件
     assert search.search_by_content('不存在的词xyz') == []
+def test_search_ch(tmp_path):
+    file_path = (tmp_path / "search_ch.txt")
+    file_path.write_text("今天天气很好，适合出去玩",encoding="utf-8")
+    scan_dir(tmp_path)
+
+    files = search_by_content("今天天")
+    assert len(files) == 1
+    assert files[0].name == "search_ch.txt"
+
+    files = search_by_content("今天")
+    assert len(files) == 1
+    assert files[0].name == "search_ch.txt"
+
+    files = search_by_content("天")
+    assert len(files) == 1
+    assert files[0].name == "search_ch.txt"
+
+    files = search_by_content("你")
+    assert len(files) == 0

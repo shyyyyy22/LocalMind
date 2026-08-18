@@ -19,6 +19,8 @@ def clean_db():
     with engine.begin() as conn:
         stmt = text("DROP TABLE IF EXISTS content_fts")
         conn.execute(stmt)
+        stmt = text("DROP TABLE IF EXISTS content_fts_cn")
+        conn.execute(stmt)
     init_fts(engine)
 @pytest.fixture
 def seeded_db(tmp_path,clean_db):

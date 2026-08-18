@@ -100,6 +100,7 @@ def process_one_file(file_path,session):
 
 def scan_dir(root_path):
     print(f"[INFO]:Scanning {root_path}")
+    init_fts(engine)
     try:
         root = Path(root_path)
         if not root.exists():

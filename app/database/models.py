@@ -56,3 +56,29 @@ def init_fts(engine):
                 DELETE FROM content_fts WHERE rowid=old.id;
             END;
         """))
+        conn.execute(text("""CREATE VIRTUAL TABLE IF NOT EXISTS content_fts_cn USING fts5
+                                  (content,
+                                  content = file_contents,
+                                  content_rowid = id,
+                                  tokenize='trigram'
+                                  )
+                              """))
+        conn.execute(text("""
+                    CREATE TRIGGER IF NOT EXISTS content_fts_cn_after_insert AFTER INSERT ON file_contents
+                    BEGIN
+                        INSERT INTO content_fts_cn(rowid, content) VALUES (new.id, new.content);
+                    END;
+                """))
+        conn.execute(text("""
+                    CREATE TRIGGER IF NOT EXISTS content_fts_cn_after_update AFTER UPDATE OF content ON file_contents
+                    BEGIN
+                        INSERT INTO content_fts_cn(content_fts_cn, rowid, content) VALUES ('delete', old.id, old.content);
+                        INSERT INTO content_fts_cn(rowid, content) VALUES (new.id, new.content);
+                    END;
+                """))
+        conn.execute(text("""
+                    CREATE TRIGGER IF NOT EXISTS content_fts_cn_after_delete AFTER DELETE ON file_contents
+                    BEGIN
+                        DELETE FROM content_fts_cn WHERE rowid=old.id;
+                    END;
+                """))
